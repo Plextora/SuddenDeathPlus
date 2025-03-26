@@ -11,6 +11,11 @@ namespace SuddenDeathPlus
         private readonly Signatures signatures = new();
         private readonly Offsets offsets = new();
 
+        public OsuMemory() => memory.OpenProcess("osu!.exe");
+
+        public async Task<int> GetGameStatus() => await GetIntFromSig(signatures.gameStatus, offsets.gameStatus);
+        public async Task<int> GetModsEnabled() => await GetIntFromSig(signatures.modsEnabled, offsets.modsEnabled);
+
         private async Task<int> GetIntFromSig(string sig, int offset) =>
             memory.ReadInt(await GetAddrFromSig(sig, offset));
 
