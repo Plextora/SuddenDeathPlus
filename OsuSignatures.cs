@@ -11,6 +11,8 @@ namespace SuddenDeathPlus
 
     public class Offsets
     {
+        public int hpBarBase => 0x40;
+        public int playerHP => 0x1C;
         public int rulesetsAddr => -0x0B;
         public int gameStatus => -0x04;
         public int modsEnabled => 0x09;

@@ -34,6 +34,25 @@ namespace SuddenDeathPlus
             return (short)memory.Read2Byte((scoreBaseAddr + 0x92).ToString("X"));
         }
 
+        public async Task<double> GetHP()
+        {
+            long rulesetsAddr = await GetCachedAddr(signatures.rulesetsAddr);
+            long adjustedAddr = rulesetsAddr + offsets.rulesetsAddr;
+
+            int pointerA = memory.ReadInt(adjustedAddr.ToString("X"));
+            if (pointerA == 0) return 1.0;
+
+            int rulesetAddrVal = memory.ReadInt((pointerA + 0x4).ToString("X"));
+            if (rulesetAddrVal == 0) return 1.0;
+
+            int gameplayBase = memory.ReadInt((rulesetAddrVal + 0x68).ToString("X"));
+            int hpBarBase = memory.ReadInt((gameplayBase + offsets.hpBarBase).ToString("X"));
+
+            return hpBarBase != 0
+                ? memory.ReadDouble((hpBarBase + offsets.playerHP).ToString("X"))
+                : 1.0;
+        }
+
         private async Task<int> GetIntFromSig(string sig, int offset) =>
             memory.ReadInt(await GetAddrFromSig(sig, offset));
 

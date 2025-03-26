@@ -35,9 +35,9 @@ namespace SuddenDeathPlus
             {
                 int gameStatus = await osuMemory.GetGameStatus();
                 int modsEnabled = await osuMemory.GetModsEnabled();
-                short hitMiss = await osuMemory.GetMisses();
+                double hp = await osuMemory.GetHP();
 
-                if (gameStatus == 2 && (modsEnabled & 32) != 0 && hitMiss >= 1 && hitMiss != 27136)
+                if (gameStatus == 2 && (modsEnabled & 32) != 0 && hp <= 0.0)
                 {
                     Console.WriteLine("Fatal mistake..");
                     Thread.Sleep(3000);
