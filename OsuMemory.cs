@@ -10,6 +10,7 @@ namespace SuddenDeathPlus
         private readonly Mem memory = new();
         private readonly Signatures signatures = new();
         private readonly Offsets offsets = new();
+        private readonly Dictionary<string, long> cachedAddr = new();
 
         public OsuMemory() => memory.OpenProcess("osu!.exe");
 
@@ -19,10 +20,21 @@ namespace SuddenDeathPlus
         private async Task<int> GetIntFromSig(string sig, int offset) =>
             memory.ReadInt(await GetAddrFromSig(sig, offset));
 
+        private async Task<long> GetCachedAddr(string sig)
+        {
+            if (!cachedAddr.TryGetValue(sig, out long address))
+            {
+                IEnumerable<long> aobScan = await memory.AoBScan(sig);
+                address = aobScan.FirstOrDefault();
+                cachedAddr[sig] = address;
+            }
+
+            return address;
+        }
+
         private async Task<string> GetAddrFromSig(string sig, int offset)
         {
-            IEnumerable<long> aobScan = await memory.AoBScan(sig);
-            long result = aobScan.FirstOrDefault();
+            long result = await GetCachedAddr(sig);
             string hexPointer = (result + offset).ToString("X");
             return memory.ReadInt(hexPointer).ToString("X");
         }
