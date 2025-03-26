@@ -17,6 +17,23 @@ namespace SuddenDeathPlus
         public async Task<int> GetGameStatus() => await GetIntFromSig(signatures.gameStatus, offsets.gameStatus);
         public async Task<int> GetModsEnabled() => await GetIntFromSig(signatures.modsEnabled, offsets.modsEnabled);
 
+        public async Task<short> GetMisses()
+        {
+            long rulesetsAddr = await GetCachedAddr(signatures.rulesetsAddr);
+            long adjustedAddr = rulesetsAddr + offsets.rulesetsAddr;
+
+            int pointerA = memory.ReadInt(adjustedAddr.ToString("X"));
+            if (pointerA == 0) return 0;
+
+            int rulesetAddrVal = memory.ReadInt((pointerA + 0x4).ToString("X"));
+            if (rulesetAddrVal == 0) return 0;
+
+            int gameplayBase = memory.ReadInt((rulesetAddrVal + 0x68).ToString("X"));
+            int scoreBaseAddr = memory.ReadInt((gameplayBase + 0x38).ToString("X"));
+
+            return (short)memory.Read2Byte((scoreBaseAddr + 0x92).ToString("X"));
+        }
+
         private async Task<int> GetIntFromSig(string sig, int offset) =>
             memory.ReadInt(await GetAddrFromSig(sig, offset));
 
