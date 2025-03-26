@@ -2,26 +2,35 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace SuddenDeathPlus
 {
     internal class Program
     {
         [DllImport("ntdll.dll", SetLastError = true)]
-        private static extern void RtlSetProcessIsCritical(UInt32 v1, UInt32 v2, UInt32 v3);
+        private static extern void RtlSetProcessIsCritical(uint v1, uint v2, uint v3);
 
         private static void TriggerBSOD()
         {
-            System.Diagnostics.Process.EnterDebugMode();
+            Process.EnterDebugMode();
             RtlSetProcessIsCritical(1, 0, 0);
-            System.Diagnostics.Process.GetCurrentProcess().Kill();
+            Process.GetCurrentProcess().Kill();
         }
 
         private static async Task Main(string[] args)
         {
+            if (Process.GetProcessesByName("osu!").Length == 0)
+            {
+                Console.WriteLine("osu! isn't running you silly goose");
+                Console.WriteLine("Press any key to exit..");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+
             OsuMemory osuMemory = new();
 
-            Console.WriteLine("Waiting for game start...");
+            Console.WriteLine("Waiting for user to start playing with SD :)");
             while (true)
             {
                 int gameStatus = await osuMemory.GetGameStatus();
